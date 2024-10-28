@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Simple Timer</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                min-width: 500px;
+                min-height: 250px;
+                margin: 0;
+                background-color: #f4f4f9;
+            }
+            .timer-container {
+                text-align: center;
+                background-color: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                max-width: 300px;
+                width: 100%;
+            }
+            .display {
+                font-size: 2em;
+                margin: 0;
+                margin-bottom: 10px;
+                margin-left: 75px;
+                text-align: left;
+            }
+            .buttons {
+                display: flex;
+                gap: 10px;
+                justify-content: center;
+            }
+            button {
+                padding: 10px 15px;
+                font-size: 1em;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                transition-duration: 0.2s;
+            }
+            #start {
+                background-color: #4caf50;
+                background-color: #0067ce;
+                color: white;
+            }
+            #pause {
+                background-color: #f39c12;
+                background-color: #576f87;
+                background-color: #0067ce;
+                color: white;
+            }
+            #reset {
+                background-color: #ff1900;
+                color: white;
+            }
+            button:hover {
+                opacity: 0.5;
+            }
+            button:active {
+                background-color: #000000;
+                opacity: 1;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="timer-container">
+            <div class="display" id="display">00:00:000</div>
+            <input
+                type="number"
+                id="minutes"
+                min="1"
+                value="5"
+                style="width: 100px; font-size: 20px; margin-bottom: 20px; padding: 4px; text-align: left"
+            />
+            mins
+            <div class="buttons">
+                <button id="start">Start</button>
+                <button id="pause">Pause</button>
+                <button id="reset">Reset</button>
+            </div>
+            <!-- Sound to play on timer completion -->
+            <audio id="end-sound" src="https://www.soundjay.com/button/sounds/beep-07.mp3" preload="auto"></audio>
+        </div>
+
+        <script>
+            let timer
+            let timeLeft = 0 // in milliseconds
+            let isRunning = false
+
+            const display = document.getElementById('display')
+            const minutesInput = document.getElementById('minutes')
+            const startButton = document.getElementById('start')
+            const pauseButton = document.getElementById('pause')
+            const resetButton = document.getElementById('reset')
+            const endSound = document.getElementById('end-sound')
+
+            function formatTime(milliseconds) {
+                const mins = Math.floor(milliseconds / 60000)
+                    .toString()
+                    .padStart(2, '0')
+                const secs = Math.floor((milliseconds % 60000) / 1000)
+                    .toString()
+                    .padStart(2, '0')
+                const millis = (milliseconds % 1000).toString().padStart(3, '0')
+                return `${mins}:${secs}:${millis}`
+            }
+
+            function percentRemaining() {
+                const totalTime = parseInt(minutesInput.value) * 60000
+                const percent = timeLeft / totalTime
+                // log to console when percentage changes (by whole digit)
+                if ((percent * 100) % 1 == 0) console.info({ percent, remaining: `${percent * 100}%` })
+                return percent
+            }
+
+            function updateTimeColor() {
+                const rem = percentRemaining()
+                if (rem < 0.05) return '#FF0000' // red
+                if (rem < 0.1) return '#FC6103' // amber
+                return '#0067CE' // blue
+                //return '#000000'
+            }
+
+            function updateDisplay() {
+                display.style.color = updateTimeColor()
+                display.textContent = formatTime(timeLeft)
+            }
+
+            function startTimer() {
+                if (isRunning || timeLeft <= 0) return
+                isRunning = true
+                timer = setInterval(() => {
+                    if (timeLeft > 0) {
+                        timeLeft -= 1
+                        updateDisplay()
+                    } else {
+                        clearInterval(timer)
+                        isRunning = false
+                        timeLeft = 0
+                        updateDisplay()
+                        endSound.play() // play sound when timer ends
+                    }
+                }, 1) // every millisecond
+            }
+
+            function pauseTimer() {
+                clearInterval(timer)
+                isRunning = false
+            }
+
+            function resetTimer() {
+                clearInterval(timer)
+                isRunning = false
+                timeLeft = parseInt(minutesInput.value) * 60000 || 0 // convert minutes to milliseconds
+                updateDisplay()
+            }
+
+            startButton.addEventListener('click', () => {
+                if (!isRunning) {
+                    if (timeLeft === 0) timeLeft = parseInt(minutesInput.value) * 60000 || 0 // set initial time in ms
+                    startTimer()
+                }
+            })
+
+            pauseButton.addEventListener('click', pauseTimer)
+            resetButton.addEventListener('click', resetTimer)
+
+            resetTimer()
+        </script>
+    </body>
+</html>
