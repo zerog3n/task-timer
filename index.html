@@ -11,7 +11,7 @@
                 align-items: center;
                 justify-content: center;
                 height: 100vh;
-                min-width: 500px;
+                min-width: 400px;
                 min-height: 250px;
                 margin: 0;
                 background-color: #f4f4f9;
@@ -22,12 +22,13 @@
                 background-color: #fff;
                 padding: 20px;
                 border-radius: 8px;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4);
                 max-width: 300px;
                 width: 100%;
             }
             .display {
                 font-size: 2em;
+                font-family: monospace;
                 margin: 0;
                 margin-bottom: 10px;
                 margin-left: 75px;
@@ -48,7 +49,7 @@
             }
             #start {
                 background-color: #4caf50;
-                background-color: #0067ce;
+                background-color: #2e9529;
                 color: white;
             }
             #pause {
@@ -68,23 +69,43 @@
                 background-color: #000000;
                 opacity: 1;
             }
+            .progress {
+                background-color: #e2e2e2;
+                height: 20px;
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            .progress #remaining {
+                background-color: #0067ce;
+                height: 20px;
+                width: 20%;
+            }
         </style>
     </head>
     <body>
         <div class="timer-container">
+            <div class="progress"><div id="remaining"></div></div>
             <div class="display" id="display">00:00:000</div>
             <input
                 type="number"
                 id="minutes"
                 min="1"
                 value="5"
-                style="width: 100px; font-size: 20px; margin-bottom: 20px; padding: 4px; text-align: left"
+                style="
+                    width: 100px;
+                    font-size: 20px;
+                    margin-bottom: 20px;
+                    padding: 4px;
+                    text-align: left;
+                    border: #ccc solid 1px;
+                "
+                onchange="resetTimer()"
             />
             mins
             <div class="buttons">
                 <button id="start">Start</button>
                 <button id="pause">Pause</button>
-                <button id="reset">Reset</button>
+                <button id="reset">Stop</button>
                 <button id="open" onclick="openTimer()">🗗</button>
             </div>
             <!-- Sound to play on timer completion -->
@@ -97,6 +118,7 @@
             let isRunning = false
 
             const display = document.getElementById('display')
+            const remaining = document.getElementById('remaining')
             const minutesInput = document.getElementById('minutes')
             const startButton = document.getElementById('start')
             const pauseButton = document.getElementById('pause')
@@ -107,7 +129,7 @@
                 window.open(
                     window.location.href, // current URL
                     '_blank',
-                    'toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=500,height=280'
+                    'toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=424,height=278'
                 )
             }
 
@@ -119,28 +141,66 @@
                     .toString()
                     .padStart(2, '0')
                 const millis = (milliseconds % 1000).toString().padStart(3, '0')
-                return `${mins}:${secs}:${millis}`
+
+                let t = `${mins}:${secs}:${millis}`
+                if (t == '00:00:000') {
+                    t = `Next task!`
+                }
+
+                return t
             }
 
             function percentRemaining() {
                 const totalTime = parseInt(minutesInput.value) * 60000
                 const percent = timeLeft / totalTime
-                // log to console when percentage changes (by whole digit)
-                if ((percent * 100) % 1 == 0) console.info({ percent, remaining: `${percent * 100}%` })
                 return percent
             }
 
             function updateTimeColor() {
                 const rem = percentRemaining()
-                if (rem < 0.05) return '#FF0000' // red
-                if (rem < 0.1) return '#FC6103' // amber
-                return '#0067CE' // blue
-                //return '#000000'
+                if (!rem) return '#000000' // black @ 0%
+                if (rem < 0.2) return '#FF0000' // red @ < 20%
+                if (rem < 0.4) return '#FC6103' // amber @ < 40%
+                return '#0067CE' // blue @ > 40%
+            }
+
+            function updateRemaining() {
+                const percent = percentRemaining()
+                const width = `${Math.floor(percent * 100)}%`
+                const color = updateTimeColor()
+                return {
+                    percent,
+                    width,
+                    color,
+                }
             }
 
             function updateDisplay() {
-                display.style.color = updateTimeColor()
+                const { width, color, percent } = updateRemaining()
+
+                // update element styles
+                remaining.style.backgroundColor = color
+                remaining.style.width = width
+                display.style.color = color
+
+                // log to console when percentage changes (by whole digit)
+                if ((percent * 100) % 1 == 0) console.info({ percent, remaining: `${percent * 100}%` })
+
                 display.textContent = formatTime(timeLeft)
+                updateBackground()
+            }
+
+            function updateBackground() {
+                const percent = percentRemaining()
+                const color = updateTimeColor()
+
+                if (percent) {
+                    document.body.style.backgroundColor = color
+                    return
+                }
+
+                document.body.style.backgroundColor = '#f4f4f9'
+                document.body.style.backgroundColor = '#2e9529' // green
             }
 
             function startTimer() {
@@ -148,7 +208,7 @@
                 isRunning = true
                 timer = setInterval(() => {
                     if (timeLeft > 0) {
-                        timeLeft -= 1
+                        timeLeft -= 10
                         updateDisplay()
                     } else {
                         clearInterval(timer)
@@ -157,7 +217,7 @@
                         updateDisplay()
                         endSound.play() // play sound when timer ends
                     }
-                }, 1) // every millisecond
+                }, 10) // every 10 milliseconds (60 fps)
             }
 
             function pauseTimer() {
