@@ -118,7 +118,7 @@
                 <button id="open" onclick="openTimer()">🗗</button>
             </div>
             <!-- Sounds to play on timer warning and completion -->
-            <audio id="warn-sound" src="warning.mp3" preload="auto" loop></audio>
+            <audio id="warn-sound" src="beep.mp3" preload="auto" loop></audio>
             <audio id="end-sound" src="alarm.mp3" preload="auto" loop></audio>
         </div>
 
@@ -272,6 +272,7 @@
 
             // set volume based on slider input
             volumeControl.addEventListener('input', () => {
+                warnSound.volume = volumeControl.value
                 endSound.volume = volumeControl.value
             })
 
@@ -285,6 +286,7 @@
             pauseButton.addEventListener('click', pauseTimer)
             resetButton.addEventListener('click', resetTimer)
 
+            warnSound.volume = volumeControl.value
             endSound.volume = volumeControl.value
 
             resetTimer()
