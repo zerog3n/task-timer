@@ -198,8 +198,8 @@
                 // log to console when percentage changes (by whole digit)
                 if ((percent * 100) % 1 == 0) console.info({ percent, remaining: `${percent * 100}%` })
 
-                // play warning sound
-                if (percent <= 0.2) playSound('warn')
+                // play warning sound @ 10% remaining
+                if (percent <= 0.1) playSound('warn')
 
                 display.textContent = formatTime(timeLeft)
                 updateBackground()
