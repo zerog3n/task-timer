@@ -117,7 +117,8 @@
                 <button id="reset">Stop</button>
                 <button id="open" onclick="openTimer()">🗗</button>
             </div>
-            <!-- Sound to play on timer completion -->
+            <!-- Sounds to play on timer warning and completion -->
+            <audio id="warn-sound" src="warning.mp3" preload="auto" loop></audio>
             <audio id="end-sound" src="alarm.mp3" preload="auto" loop></audio>
         </div>
 
@@ -132,6 +133,7 @@
             const startButton = document.getElementById('start')
             const pauseButton = document.getElementById('pause')
             const resetButton = document.getElementById('reset')
+            const warnSound = document.getElementById('warn-sound')
             const endSound = document.getElementById('end-sound')
             const volumeControl = document.getElementById('volume')
 
@@ -167,10 +169,10 @@
             }
 
             function updateTimeColor() {
-                const rem = percentRemaining()
-                if (!rem) return '#000000' // black @ 0%
-                if (rem <= 0.2) return '#FF0000' // red @ < 20%
-                if (rem <= 0.4) return '#FC6103' // amber @ < 40%
+                const percent = percentRemaining()
+                if (!percent) return '#000000' // black @ 0%
+                if (percent <= 0.2) return '#FF0000' // red @ < 20%
+                if (percent <= 0.4) return '#FC6103' // amber @ < 40%
                 return '#0067CE' // blue @ > 40%
             }
 
@@ -196,6 +198,9 @@
                 // log to console when percentage changes (by whole digit)
                 if ((percent * 100) % 1 == 0) console.info({ percent, remaining: `${percent * 100}%` })
 
+                // play warning sound
+                if (percent <= 0.2) playSound('warn')
+
                 display.textContent = formatTime(timeLeft)
                 updateBackground()
             }
@@ -213,15 +218,25 @@
                 document.body.style.backgroundColor = '#2e9529' // green
             }
 
-            function playSound() {
-                endSound.loop = true
-                endSound.play()
+            function playSound(type = 'end') {
+                if (type == 'end') {
+                    stopSound()
+                    endSound.loop = true
+                    endSound.play()
+                }
+                if (type == 'warn') {
+                    warnSound.loop = true
+                    warnSound.play()
+                }
             }
 
             function stopSound() {
                 endSound.loop = false
                 endSound.pause()
                 endSound.currentTime = 0 // reset audio to start
+                warnSound.loop = false
+                warnSound.pause()
+                warnSound.currentTime = 0 // reset audio to start
             }
 
             function startTimer() {
@@ -236,7 +251,7 @@
                         isRunning = false
                         timeLeft = 0
                         updateDisplay()
-                        playSound() // play sound when timer ends
+                        playSound('end') // play sound when timer ends
                     }
                 }, 10) // every 10 milliseconds (60 fps)
             }
