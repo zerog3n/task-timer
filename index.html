@@ -138,10 +138,19 @@
             const volumeControl = document.getElementById('volume')
 
             function openTimer() {
+                // get the current window's position
+                let currentX = window.screenX || window.screenLeft
+                let currentY = window.screenY || window.screenTop
+
+                // calculate the new window position
+                let newX = currentX + 20
+                let newY = currentY + 20
+
+                // open the new window at the calculated position
                 window.open(
                     window.location.href, // current URL
                     '_blank',
-                    'toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=424,height=278'
+                    `toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=424,height=278,left=${newX},top=${newY}`
                 )
             }
 
