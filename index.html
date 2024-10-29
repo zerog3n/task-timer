@@ -261,6 +261,7 @@
                         timeLeft = 0
                         updateDisplay()
                         playSound('end') // play sound when timer ends
+                        showNotification()
                     }
                 }, 10) // every 10 milliseconds (60 fps)
             }
@@ -277,6 +278,38 @@
                 timeLeft = parseInt(minutesInput.value) * 60000 || 0 // convert minutes to milliseconds
                 updateDisplay()
                 stopSound()
+            }
+
+            function checkPermissions() {
+                if ('Notification' in window) {
+                    if (Notification.permission === 'granted') {
+                        // Permission has already been granted, no need to ask again
+                    } else if (Notification.permission !== 'denied') {
+                        // Ask for permission
+                        Notification.requestPermission().then((permission) => {
+                            if (permission === 'granted') {
+                                console.log('notifications enabled')
+                            }
+                        })
+                    }
+                } else {
+                    console.warn('This browser does not support notifications.')
+                }
+            }
+
+            function showNotification() {
+                if (Notification.permission === 'granted') {
+                    const notification = new Notification('Next Task!', {
+                        body: 'The timer has finished',
+                        icon: 'https://zerog3n.github.io/task-timer/android-chrome-192x192.png', // Optional icon
+                    })
+
+                    // Optional: Handle click event on the notification
+                    notification.onclick = () => {
+                        window.focus() // Focus the window if the user clicks on the notification
+                        notification.close()
+                    }
+                }
             }
 
             // set volume based on slider input
