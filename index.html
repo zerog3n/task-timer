@@ -272,7 +272,7 @@
 
             // set volume based on slider input
             volumeControl.addEventListener('input', () => {
-                warnSound.volume = volumeControl.value
+                warnSound.volume = volumeControl.value * 0.5
                 endSound.volume = volumeControl.value
             })
 
@@ -286,7 +286,7 @@
             pauseButton.addEventListener('click', pauseTimer)
             resetButton.addEventListener('click', resetTimer)
 
-            warnSound.volume = volumeControl.value
+            warnSound.volume = volumeControl.value * 0.5
             endSound.volume = volumeControl.value
 
             resetTimer()
