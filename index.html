@@ -117,7 +117,7 @@
                 <button id="open" onclick="openTimer()">🗗</button>
             </div>
             <!-- Sound to play on timer completion -->
-            <audio id="end-sound" src="alarm.mp3" preload="auto"></audio>
+            <audio id="end-sound" src="alarm.mp3" preload="auto" loop></audio>
         </div>
 
         <script>
@@ -168,8 +168,8 @@
             function updateTimeColor() {
                 const rem = percentRemaining()
                 if (!rem) return '#000000' // black @ 0%
-                if (rem < 0.2) return '#FF0000' // red @ < 20%
-                if (rem < 0.4) return '#FC6103' // amber @ < 40%
+                if (rem <= 0.2) return '#FF0000' // red @ < 20%
+                if (rem <= 0.4) return '#FC6103' // amber @ < 40%
                 return '#0067CE' // blue @ > 40%
             }
 
@@ -212,6 +212,17 @@
                 document.body.style.backgroundColor = '#2e9529' // green
             }
 
+            function playSound() {
+                endSound.loop = true
+                endSound.play()
+            }
+
+            function stopSound() {
+                endSound.loop = false
+                endSound.pause()
+                endSound.currentTime = 0 // reset audio to start
+            }
+
             function startTimer() {
                 if (isRunning || timeLeft <= 0) return
                 isRunning = true
@@ -224,7 +235,7 @@
                         isRunning = false
                         timeLeft = 0
                         updateDisplay()
-                        endSound.play() // play sound when timer ends
+                        playSound() // play sound when timer ends
                     }
                 }, 10) // every 10 milliseconds (60 fps)
             }
@@ -232,6 +243,7 @@
             function pauseTimer() {
                 clearInterval(timer)
                 isRunning = false
+                stopSound()
             }
 
             function resetTimer() {
@@ -239,6 +251,7 @@
                 isRunning = false
                 timeLeft = parseInt(minutesInput.value) * 60000 || 0 // convert minutes to milliseconds
                 updateDisplay()
+                stopSound()
             }
 
             // set volume based on slider input
@@ -255,6 +268,8 @@
 
             pauseButton.addEventListener('click', pauseTimer)
             resetButton.addEventListener('click', resetTimer)
+
+            endSound.volume = volumeControl.value
 
             resetTimer()
         </script>
