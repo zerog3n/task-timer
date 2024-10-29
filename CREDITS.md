@@ -1,8 +1,5 @@
-alarm.mp3
+alarm.mp3 (modified)
 https://pixabay.com/sound-effects/digital-alarm-107256/
-
-warning.mp3
-https://pixabay.com/sound-effects/beeping-sound-194319/
 
 beep.mp3 (modified)
 https://pixabay.com/sound-effects/piep-33489/
