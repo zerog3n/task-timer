@@ -312,10 +312,13 @@
                 }
             }
 
+            const WARN_SOUND_AMPLIFY = 0.2
+            const END_SOUND_AMPLIFY = 0.8
+
             // set volume based on slider input
             volumeControl.addEventListener('input', () => {
-                warnSound.volume = volumeControl.value * 0.5
-                endSound.volume = volumeControl.value
+                warnSound.volume = volumeControl.value * WARN_SOUND_AMPLIFY
+                endSound.volume = volumeControl.value * END_SOUND_AMPLIFY
             })
 
             startButton.addEventListener('click', () => {
@@ -328,8 +331,8 @@
             pauseButton.addEventListener('click', pauseTimer)
             resetButton.addEventListener('click', resetTimer)
 
-            warnSound.volume = volumeControl.value * 0.25
-            endSound.volume = volumeControl.value
+            warnSound.volume = volumeControl.value * WARN_SOUND_AMPLIFY
+            endSound.volume = volumeControl.value * END_SOUND_AMPLIFY
 
             resetTimer()
             checkPermissions()
